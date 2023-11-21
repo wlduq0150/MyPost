@@ -36,5 +36,9 @@ export default class User extends Model {
 		});
 	}
 	
-	static associate(db) {}
+	static associate(db) {
+		db.User.hasMany(db.Post, { as: "posts", foreignKey: "userId", sourceKey: "id" });
+		db.User.hasMany(db.Comment, { as: "comments", foreignKey: "userId", sourceKey: "id" });
+		db.User.hasMany(db.CommentLike, { as: "commentLikes", foreignKey: "userId", sourceKey: "id" });
+	}
 }
