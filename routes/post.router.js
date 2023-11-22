@@ -24,7 +24,7 @@ postRouter.post("/posts", async(req,res)=>{
             res.status(401).json({ok:false, message:"로그인 이후 이용할 수 있습니다."})
         };
         const post = await Post.create({
-         userId:userId,
+         userId,
          title,
          content,
          thumbnail,
