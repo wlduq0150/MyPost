@@ -10,7 +10,7 @@ import { routerMiddleware } from "./middlewares/router.middleware.js";
 import { errorMiddleware } from "./middlewares/error.middleware.js";
 import { apiRouter } from "./routers/index.js";
 import db from "./models/index.js";
-import commentRouter from "./routes/comment.routes.js";
+import commentRouter from "./routes/comment.router.js";
 import likeRouter from "./routes/like.router.js";
 import postRouter from "./routes/post.router.js";
 import userRouter from "./routes/user.router.js";
@@ -69,7 +69,7 @@ app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(sessionMiddleware);
 
 
-app.use("/api", likeRouter, userRouter, commentRouter);
+app.use("/api", apiRouter, likeRouter, userRouter, postRouter, commentRouter);
 
 
 // 라우터 404 에러 방지 미들웨어

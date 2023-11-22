@@ -6,7 +6,6 @@ const userRouter = express.Router();
 // 프로필 조회
 userRouter.get("/user/profile", async (req, res, next) => {
     const loginUser = 1;
-
     const userId = parseInt(req.query.userId);
     const exclude = [];
 
