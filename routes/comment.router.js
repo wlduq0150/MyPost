@@ -1,4 +1,8 @@
 import express from "express";
+import Sequelize from "sequelize";
+import * as configEX from "../config/config.js";
+const env = process.env.NODE_ENV || "development";
+const config = configEX[env];
 import User from "../models/users.model.js";
 import Post from "../models/posts.model.js";
 import Comment from "../models/comments.model.js";
@@ -59,7 +63,7 @@ router.post("/comments/like/:commentId", async (req, res) => {
     const { commentId } = req.params;
     const existComment = await Comment.findOne({ where: { id: commentId } });
     if (!existComment) return res.status(400).json({ ok: false, message: "해당 댓글이 없습니다." });
-    const userId = 1; // 인증 넣고 수정
+    const userId = 5; // 인증 넣고 수정
     if (existComment.userId === userId)
         return res
             .status(400)
@@ -67,7 +71,16 @@ router.post("/comments/like/:commentId", async (req, res) => {
     const existLike = await CommentLike.findOne({ where: { userId, commentId } });
     if (existLike)
         return res.status(400).json({ ok: false, message: "이미 좋아요를 한 댓글입니다." });
-    await CommentLike.create({ userId, commentId });
+    try {
+        await new Sequelize(config.database, config.username, config.password, config).transaction(
+            async (t) => {
+                await CommentLike.create({ userId, commentId });
+                await existComment.update({ likes: existComment.likes + 1 });
+            }
+        );
+    } catch (e) {
+        console.log(e);
+    }
     res.status(201).json({ ok: true, message: "댓글에 좋아요를 했습니다." });
 });
 
@@ -77,10 +90,23 @@ router.delete("/commentsLike/:commentLikeId", async (req, res) => {
     const existCommentLike = await CommentLike.findOne({ where: { id: commentLikeId } });
     if (!existCommentLike)
         return res.status(400).json({ ok: false, message: "해당 좋아요가 없습니다." });
-    const userId = 1; // 인증 넣고 수정
+    const userId = 5; // 인증 넣고 수정
     if (existCommentLike.userId !== userId)
         return res.status(400).json({ ok: false, message: "좋아요 취소 권한이 없습니다." });
-    await existCommentLike.destroy();
+    try {
+        await new Sequelize(config.database, config.username, config.password, config).transaction(
+            async (t) => {
+                const existComment = await Comment.findOne({
+                    where: { id: existCommentLike.commentId },
+                });
+                if (!existComment) throw "출처가 없는 좋아요가 있습니다.";
+                await existComment.update({ likes: existComment.likes - 1 });
+                await existCommentLike.destroy();
+            }
+        );
+    } catch (e) {
+        console.log(e);
+    }
     res.status(204).json();
 });
 
