@@ -10,7 +10,7 @@ userRouter.get("/user/profile", async (req, res, next) => {
     const userId = parseInt(req.query.userId);
     const exclude = [];
 
-    if (loginUser && loginUser !== userId) {
+    if (loginUser !== userId) {
         exclude.push("password", "birth");
     }
 
@@ -39,7 +39,7 @@ userRouter.patch("/user/profile", async (req, res, next) => {
 
     const userId = parseInt(req.query.userId);
 
-    if (loginUser && loginUser !== userId) {
+    if (loginUser !== userId) {
         return res.status(401).json({
             ok: false,
             message: "편집 권한이 없습니다."

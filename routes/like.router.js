@@ -47,16 +47,22 @@ likeRouter.post("/comments/:commentId/like", async (req, res, next) => {
             await CommentLike.create({
                 userId,
                 commentId
+            }, {
+                transaction: t
             });
 
             likes += 1;
         } else {
             await CommentLike.destroy({
-                where: { id: commentId }
+                where: { commentId }
+            }, {
+                transaction: t
             });
 
             likes -= 1;
         }
+
+        throw new Error("트랜잭션 테스트");
 
 
         // 댓글 좋아요 카운트
