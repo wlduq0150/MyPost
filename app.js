@@ -68,8 +68,9 @@ app.use(express.json());
 app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(sessionMiddleware);
 
-// api 라우터
-app.use("/api", [commentRouter,likeRouter,postRouter]);
+
+app.use("/api", likeRouter, userRouter, commentRouter);
+
 
 // 라우터 404 에러 방지 미들웨어
 app.use(routerMiddleware);
