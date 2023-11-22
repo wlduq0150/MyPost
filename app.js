@@ -9,7 +9,7 @@ import { sessionMiddleware } from "./middlewares/session.middleware.js";
 import { routerMiddleware } from "./middlewares/router.middleware.js";
 import { errorMiddleware } from "./middlewares/error.middleware.js";
 import db from "./models/index.js";
-import { router as commentRouter } from "./routes/comment.router.js";
+import commentRouter from "./routes/comment.router.js";
 import likeRouter from "./routes/like.router.js";
 
 // 환경변수 세팅

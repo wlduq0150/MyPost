@@ -16,7 +16,7 @@ const router = express.Router();
 router.get("/posts/comments/:postId", async (req, res) => {
     const { postId } = req.params;
     const existPost = await Post.findOne({ where: { id: postId } });
-    if (!existPost) return res.status(400).json({ ok: false, message: "해당 포스트가 없습니다." });
+    if (!existPost) return res.status(404).json({ ok: false, message: "해당 포스트가 없습니다." });
     const postComments = await Comment.findAll({ where: { postId } });
     res.status(200).json({ postComments });
 });
@@ -26,7 +26,7 @@ router.post("/posts/newComment/:postId", async (req, res) => {
     const { content } = req.body;
     const { postId } = req.params;
     const existPost = await Post.findOne({ where: { id: postId } });
-    if (!existPost) return res.status(400).json({ ok: false, message: "해당 포스트가 없습니다." });
+    if (!existPost) return res.status(404).json({ ok: false, message: "해당 포스트가 없습니다." });
     const userId = 3; // 인증 넣고 수정
     await Comment.create({ userId, postId, content });
     res.status(201).json({ ok: true, message: "댓글이 등록되었습니다." });
@@ -38,10 +38,10 @@ router.put("/comments/:commentId", async (req, res) => {
     console.log(content);
     const { commentId } = req.params;
     const existComment = await Comment.findOne({ where: { id: commentId } });
-    if (!existComment) return res.status(400).json({ ok: false, message: "해당 댓글이 없습니다." });
+    if (!existComment) return res.status(404).json({ ok: false, message: "해당 댓글이 없습니다." });
     const userId = 1; // 인증 넣고 수정
     if (existComment.userId !== userId)
-        return res.status(400).json({ ok: false, message: "수정 권한이 없습니다." });
+        return res.status(401).json({ ok: false, message: "수정 권한이 없습니다." });
     await existComment.update({ content });
     res.status(201).json({ ok: true, message: "댓글이 수정되었습니다." });
 });
@@ -50,64 +50,12 @@ router.put("/comments/:commentId", async (req, res) => {
 router.delete("/comments/:commentId", async (req, res) => {
     const { commentId } = req.params;
     const existComment = await Comment.findOne({ where: { id: commentId } });
-    if (!existComment) return res.status(400).json({ ok: false, message: "해당 댓글이 없습니다." });
+    if (!existComment) return res.status(404).json({ ok: false, message: "해당 댓글이 없습니다." });
     const userId = 3; // 인증 넣고 수정
     if (existComment.userId !== userId)
-        return res.status(400).json({ ok: false, message: "삭제 권한이 없습니다." });
+        return res.status(401).json({ ok: false, message: "삭제 권한이 없습니다." });
     await existComment.destroy();
     res.status(204).json();
 });
 
-// 댓글 좋아요
-router.post("/comments/like/:commentId", async (req, res) => {
-    const { commentId } = req.params;
-    const existComment = await Comment.findOne({ where: { id: commentId } });
-    if (!existComment) return res.status(400).json({ ok: false, message: "해당 댓글이 없습니다." });
-    const userId = 5; // 인증 넣고 수정
-    if (existComment.userId === userId)
-        return res
-            .status(400)
-            .json({ ok: false, message: "자신이 쓴 댓글에 좋아요를 할 수 없습니다." });
-    const existLike = await CommentLike.findOne({ where: { userId, commentId } });
-    if (existLike)
-        return res.status(400).json({ ok: false, message: "이미 좋아요를 한 댓글입니다." });
-    try {
-        await new Sequelize(config.database, config.username, config.password, config).transaction(
-            async (t) => {
-                await CommentLike.create({ userId, commentId });
-                await existComment.update({ likes: existComment.likes + 1 });
-            }
-        );
-    } catch (e) {
-        console.log(e);
-    }
-    res.status(201).json({ ok: true, message: "댓글에 좋아요를 했습니다." });
-});
-
-// 댓글 좋아요 취소
-router.delete("/commentsLike/:commentLikeId", async (req, res) => {
-    const { commentLikeId } = req.params;
-    const existCommentLike = await CommentLike.findOne({ where: { id: commentLikeId } });
-    if (!existCommentLike)
-        return res.status(400).json({ ok: false, message: "해당 좋아요가 없습니다." });
-    const userId = 5; // 인증 넣고 수정
-    if (existCommentLike.userId !== userId)
-        return res.status(400).json({ ok: false, message: "좋아요 취소 권한이 없습니다." });
-    try {
-        await new Sequelize(config.database, config.username, config.password, config).transaction(
-            async (t) => {
-                const existComment = await Comment.findOne({
-                    where: { id: existCommentLike.commentId },
-                });
-                if (!existComment) throw "출처가 없는 좋아요가 있습니다.";
-                await existComment.update({ likes: existComment.likes - 1 });
-                await existCommentLike.destroy();
-            }
-        );
-    } catch (e) {
-        console.log(e);
-    }
-    res.status(204).json();
-});
-
-export { router };
+export default router;
