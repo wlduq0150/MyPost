@@ -20,6 +20,11 @@ export default class Comment extends Model {
 			content: {
 				type: DataTypes.STRING(200),
 				allowNull: false
+			},
+			likes: {
+				type: DataTypes.INTEGER,
+				allowNull: true,
+				defaultValue: 0,
 			}
 		}, {
 			sequelize,

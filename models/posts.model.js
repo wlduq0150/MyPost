@@ -24,6 +24,11 @@ export default class Post extends Model {
 			content: {
 				type: DataTypes.TEXT,
 				allowNull: false
+			},
+			likes: {
+				type: DataTypes.INTEGER,
+				allowNull: true,
+				defaultValue: 0,
 			}
 		}, {
 			sequelize,
