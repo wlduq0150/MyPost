@@ -17,11 +17,11 @@ postRouter.post("/posts", async(req,res)=>{
     const { content, title, thumbnail } = req.body;
 
     try {
-        if(!content||!title||!thumbnail){
+        if(!content||!title){
             res.status(400).json({ok:false, message:"내용을 모두 채워 주세요."})
         };
         if(!userId){ //로그인 부분 완료 후 수정 필요.
-            res.status(400).json({ok:false, message:"로그인 이후 이용할 수 있습니다."})
+            res.status(401).json({ok:false, message:"로그인 이후 이용할 수 있습니다."})
         };
         const post = await Post.create({
          userId:userId,
@@ -83,10 +83,10 @@ postRouter.put("/posts/:postId", async(req,res)=>{
             return res.status(400).json({ok:false, message:"게시물이 존재하지 않습니다."})
         };
         if(!userId){//로그인 부분 완료 후 수정 필요.
-            return res.status(400).json({ok:false, message:"로그인 이후 이용할 수 있습니다."})
+            return res.status(401).json({ok:false, message:"로그인 이후 이용할 수 있습니다."})
         };
         await Post.update(
-            {title, content, thumbnail},
+            {...req.body},
             {where: {id:postIdInt,userId:userId}}
         );
         return res.status(200).json({ok:true, message:"게시글 수정 성공"})
@@ -109,10 +109,10 @@ postRouter.delete("/posts/:postId", async(req,res)=>{
             return res.status(400).json({ok:false, message:"게시글이 존재하지 않습니다."})
         };
         if(!userId){//로그인 부분 완료 후 수정 필요.
-            res.status(400).json({ok:false, message:"로그인 이후 이용할 수 있습니다."})
+            res.status(401).json({ok:false, message:"로그인 이후 이용할 수 있습니다."})
         };
         await Post.destroy(
-            {where:{id:postIdInt,UserId: userId}}
+            {where:{id:postIdInt,userId: userId}}
         );
         res.status(200).json({ok:true, message: "게시글 삭제 완료"})
     }catch(error){
