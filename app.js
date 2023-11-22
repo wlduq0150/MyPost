@@ -12,6 +12,7 @@ import { apiRouter } from "./routers/index.js";
 import db from "./models/index.js";
 import commentRouter from "./routes/comment.router.js";
 import likeRouter from "./routes/like.router.js";
+import userRouter from "./routes/user.router.js";
 
 const { User } = db;
 
@@ -72,8 +73,8 @@ app.use(express.json());
 app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(sessionMiddleware);
 
-// api 라우터
-app.use("/api", [commentRouter,likeRouter]);
+
+app.use("/api", likeRouter, userRouter, commentRouter);
 
 
 // 라우터 404 에러 방지 미들웨어
