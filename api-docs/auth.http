@@ -3,9 +3,9 @@ POST http://localhost:3000/api/auth/signup
 Content-Type: application/json
 
 {
-   "email": "example1@example.com",
+   "email": "example2@example.com",
    "name": "test",
-   "birth": 20231121,
+   "birth": "2023-11-21",
    "myIntro": "하루를 짧게 인생은 길게",
    "password": "eXampLeP@ss",
    "passwordConfirm": "eXampLeP@ss"
