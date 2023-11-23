@@ -8,7 +8,7 @@ import cookieParser from "cookie-parser";
 import { sessionMiddleware } from "./middlewares/session.middleware.js";
 import { routerMiddleware } from "./middlewares/router.middleware.js";
 import { errorMiddleware } from "./middlewares/error.middleware.js";
-import { apiRouter } from "./routers/index.js";
+import { apiRouter } from "./routes/index.js";
 import db from "./models/index.js";
 import commentRouter from "./routes/comment.router.js";
 import likeRouter from "./routes/like.router.js";
@@ -73,9 +73,7 @@ app.use(express.json());
 app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(sessionMiddleware);
 
-
-app.use("/api", likeRouter, userRouter, commentRouter);
-
+app.use("/api", [apiRouter, likeRouter, userRouter, commentRouter]);
 
 // 라우터 404 에러 방지 미들웨어
 app.use(routerMiddleware);
