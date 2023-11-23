@@ -27,10 +27,16 @@ export default class User extends Model {
                     type: DataTypes.DATE,
                     allowNull: false,
                 },
+
+                refreshToken: {
+                    type: DataTypes.STRING(500),
+                    allowNull: true, // 로그아웃된 사용자의 경우 refreshToken은 없을 수 있습니다.
+                },
                 followers: {
                     type: DataTypes.INTEGER,
                     allowNull: false,
                     defaultValue: 0,
+
                 },
             },
             {

@@ -1,27 +1,26 @@
 import express from "express";
+import { needSignin } from "../middlewares/accesstoken-need-signin.middleware.js";
 import User from "../models/users.model.js";
 
 const userRouter = express.Router();
 
 // 본인 프로필 조회
-userRouter.get("/user/me", async (req, res, next) => {
+userRouter.get("/user/me", needSignin, async (req, res, next) => {
     const userId = 1;
 
-    const user = await User.findOne({ 
-        where: { id: userId }
-    });
+    const user = res.locals.user;
 
     if (!user) {
         return res.status(404).json({
             ok: false,
-            message: "존재하지 않는 유저입니다."
+            message: "존재하지 않는 유저입니다.",
         });
     }
 
     return res.status(200).json({
         ok: true,
         message: "프로필 조회가 완료되었습니다",
-        data: user
+        data: user,
     });
 });
 
@@ -29,37 +28,37 @@ userRouter.get("/user/me", async (req, res, next) => {
 userRouter.get("/user/:userId", async (req, res, next) => {
     const userId = parseInt(req.params.userId);
 
-    const user = await User.findOne({ 
+    const user = await User.findOne({
         where: { id: userId },
-        attributes: { exclude: ["password", "birth"] }
+        attributes: { exclude: ["password", "birth"] },
     });
 
     if (!user) {
         return res.status(404).json({
             ok: false,
-            message: "존재하지 않는 유저입니다."
+            message: "존재하지 않는 유저입니다.",
         });
     }
 
     return res.status(200).json({
         ok: true,
         message: "프로필 조회가 완료되었습니다",
-        data: user
+        data: user,
     });
 });
 
 // 본인 프로필 수정
-userRouter.patch("/user/me", async (req, res, next) => {
+userRouter.patch("/user/me", needSignin, async (req, res, next) => {
     const userId = 1;
 
-    const user = await User.findOne({ 
+    const user = await User.findOne({
         where: { id: userId },
     });
 
     if (!user) {
         return res.status(404).json({
             ok: false,
-            message: "존재하지 않는 유저입니다."
+            message: "존재하지 않는 유저입니다.",
         });
     }
 
@@ -69,18 +68,18 @@ userRouter.patch("/user/me", async (req, res, next) => {
         if (emailUser) {
             return res.status(409).json({
                 ok: false,
-                message: "이미 존재하는 이메일입니다."
+                message: "이미 존재하는 이메일입니다.",
             });
         }
     }
 
     await user.update({
-        ...req.body
+        ...req.body,
     });
 
     return res.status(200).json({
         ok: true,
-        message: "프로필이 성공적으로 수정되었습니다."
+        message: "프로필이 성공적으로 수정되었습니다.",
     });
 });
 
