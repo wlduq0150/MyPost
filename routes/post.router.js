@@ -18,10 +18,10 @@ postRouter.post("/posts", async(req,res)=>{
 
     try {
         if(!content||!title){
-            res.status(400).json({ok:false, message:"내용을 모두 채워 주세요."})
+            return res.status(400).json({ok:false, message:"내용을 모두 채워 주세요."})
         };
         if(!userId){ //로그인 부분 완료 후 수정 필요.
-            res.status(401).json({ok:false, message:"로그인 이후 이용할 수 있습니다."})
+            return res.status(401).json({ok:false, message:"로그인 이후 이용할 수 있습니다."})
         };
         const post = await Post.create({
          userId,
