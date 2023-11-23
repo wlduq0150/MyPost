@@ -8,7 +8,7 @@ import CommentLike from "../models/commentLikes.model.js";
 
 const likeRouter = express.Router();
 
-likeRouter.post("/comments/:commentId/like", async (req, res, next) => {
+likeRouter.put("/comments/:commentId/like", async (req, res, next) => {
     const userId = 1;
     const { commentId } = req.params;
 
@@ -62,14 +62,12 @@ likeRouter.post("/comments/:commentId/like", async (req, res, next) => {
             likes -= 1;
         }
 
-        throw new Error("트랜잭션 테스트");
-
-
         // 댓글 좋아요 카운트
         await Comment.update({
             likes,
         }, {
-            where: { id: commentId }
+            where: { id: commentId },
+            transaction: t
         });
 
         // 트랜잭션 커밋
@@ -102,7 +100,7 @@ likeRouter.post("/comments/:commentId/like", async (req, res, next) => {
     });
 });
 
-likeRouter.post("/posts/:postId/like", async (req, res, next) => {
+likeRouter.put("/posts/:postId/like", async (req, res, next) => {
     const userId = 1;
     const { postId } = req.params;
 

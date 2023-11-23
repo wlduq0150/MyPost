@@ -3,20 +3,12 @@ import User from "../models/users.model.js";
 
 const userRouter = express.Router();
 
-// 프로필 조회
-userRouter.get("/user/profile", async (req, res, next) => {
-    const loginUser = 1;
-
-    const userId = parseInt(req.query.userId);
-    const exclude = [];
-
-    if (loginUser !== userId) {
-        exclude.push("password", "birth");
-    }
+// 본인 프로필 조회
+userRouter.get("/user/me", async (req, res, next) => {
+    const userId = 1;
 
     const user = await User.findOne({ 
-        where: { id: userId },
-        attributes: { exclude }
+        where: { id: userId }
     });
 
     if (!user) {
@@ -33,18 +25,32 @@ userRouter.get("/user/profile", async (req, res, next) => {
     });
 });
 
-// 프로필 수정
-userRouter.patch("/user/profile", async (req, res, next) => {
-    const loginUser = 1;
+// 사용자 프로필 상세 조회
+userRouter.get("/user/:userId", async (req, res, next) => {
+    const userId = parseInt(req.params.userId);
 
-    const userId = parseInt(req.query.userId);
+    const user = await User.findOne({ 
+        where: { id: userId },
+        attributes: { exclude: ["password", "birth"] }
+    });
 
-    if (loginUser !== userId) {
-        return res.status(401).json({
+    if (!user) {
+        return res.status(404).json({
             ok: false,
-            message: "편집 권한이 없습니다."
+            message: "존재하지 않는 유저입니다."
         });
     }
+
+    return res.status(200).json({
+        ok: true,
+        message: "프로필 조회가 완료되었습니다",
+        data: user
+    });
+});
+
+// 본인 프로필 수정
+userRouter.patch("/user/me", async (req, res, next) => {
+    const userId = 1;
 
     const user = await User.findOne({ 
         where: { id: userId },
@@ -55,6 +61,17 @@ userRouter.patch("/user/profile", async (req, res, next) => {
             ok: false,
             message: "존재하지 않는 유저입니다."
         });
+    }
+
+    if ("email" in req.body) {
+        const emailUser = await User.findOne({ where: { email: req.body.email } });
+
+        if (emailUser) {
+            return res.status(409).json({
+                ok: false,
+                message: "이미 존재하는 이메일입니다."
+            });
+        }
     }
 
     await user.update({
