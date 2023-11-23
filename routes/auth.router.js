@@ -2,16 +2,19 @@ import { Router } from "express";
 import bcrypt from "bcrypt";
 import db from "../models/index.js";
 import jwt from "jsonwebtoken";
+import cookieParser from "cookie-parser";
+
 import {
     PASSWORD_SALT_ROUNDS,
     JWT_ACCESS_TOKEN_SECRET,
-    JWT_REFRESH_TOKEN_SECRET,
     JWT_ACCESS_TOKEN_EXPIRES_IN,
-    JWT_REFRESH_TOKEN_EXPIRES_IN,
+    REFRESH_TOKEN_EXPIRES_IN_SECONDS,
+    generateRandomToken,
 } from "../constants/security.constant.js";
 const { User } = db;
 const authRouter = Router();
 const datePattern = /^(19|20)\d{2}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/;
+authRouter.use(cookieParser());
 // 회원가입 /api/auth/signup
 authRouter.post("/signup", async (req, res, next) => {
     try {
@@ -94,7 +97,14 @@ authRouter.post("/signup", async (req, res, next) => {
         const hashedPassword = bcrypt.hashSync(password, PASSWORD_SALT_ROUNDS);
 
         const newUser = (
-            await User.create({ email, name, birth, myIntro, password: hashedPassword })
+            await User.create({
+                email,
+                name,
+                birth,
+                myIntro,
+                password: hashedPassword,
+                refreshToken: null,
+            })
         ).toJSON();
         delete newUser.password;
 
@@ -135,7 +145,7 @@ authRouter.post("/signin", async (req, res, next) => {
         const isCorrectUser = user && isPasswordMatched;
 
         if (!isCorrectUser) {
-            return res.status(400).json({
+            return res.status(401).json({
                 ok: false,
                 message: "일치하는 인증 정보가 없습니다.",
             });
@@ -144,10 +154,25 @@ authRouter.post("/signin", async (req, res, next) => {
         const accessToken = jwt.sign({ userId: user.id }, JWT_ACCESS_TOKEN_SECRET, {
             expiresIn: JWT_ACCESS_TOKEN_EXPIRES_IN,
         });
-        const refreshToken = jwt.sign({ userId: user.id }, JWT_REFRESH_TOKEN_SECRET, {
-            expiresIn: JWT_REFRESH_TOKEN_EXPIRES_IN,
+        res.cookie("accessToken", accessToken, {
+            httpOnly: true,
         });
 
+        const refreshToken = generateRandomToken();
+
+        // refreshToken을 데이터베이스에 저장합니다.
+        await User.update(
+            {
+                refreshToken,
+                refreshExpiresAt: new Date(Date.now() + REFRESH_TOKEN_EXPIRES_IN_SECONDS * 1000), // 현재 시간에서 7일 후를 계산하여 저장
+            },
+            { where: { id: user.id } }
+        );
+
+        res.cookie("refreshToken", refreshToken, {
+            httpOnly: true,
+        });
+        console.log(refreshToken);
         return res.status(200).json({
             ok: true,
             message: "로그인에 성공하였습니다.",
