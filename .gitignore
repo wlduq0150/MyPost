@@ -4,3 +4,4 @@ package-lock.json
 api.http
 *.sql
 api-docs
+*.jpg
