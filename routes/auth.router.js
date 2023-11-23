@@ -2,7 +2,13 @@ import { Router } from "express";
 import bcrypt from "bcrypt";
 import db from "../models/index.js";
 import jwt from "jsonwebtoken";
-import { PASSWORD_SALT_ROUNDS } from "../constants/security.constant.js";
+import {
+    PASSWORD_SALT_ROUNDS,
+    JWT_ACCESS_TOKEN_SECRET,
+    JWT_REFRESH_TOKEN_SECRET,
+    JWT_ACCESS_TOKEN_EXPIRES_IN,
+    JWT_REFRESH_TOKEN_EXPIRES_IN,
+} from "../constants/security.constant.js";
 const { User } = db;
 const authRouter = Router();
 const datePattern = /^(19|20)\d{2}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/;
@@ -67,9 +73,9 @@ authRouter.post("/signup", async (req, res, next) => {
         }
 
         let emailValidationRegex = new RegExp("[a-z0-9._]+@[a-z]+.[a-z]{2,3}");
-        const isValidEamil = emailValidationRegex.test(email);
+        const isValidEmail = emailValidationRegex.test(email);
 
-        if (!isValidEamil) {
+        if (!isValidEmail) {
             return res.status(400).json({
                 ok: false,
                 message: "올바른 이메일 형식이 아닙니다.",
@@ -103,7 +109,7 @@ authRouter.post("/signup", async (req, res, next) => {
 });
 
 // 로그인/api/auth/signin
-authRouter.post("/signin", async (req, res) => {
+authRouter.post("/signin", async (req, res, next) => {
     try {
         const { email, password } = req.body;
 
@@ -123,33 +129,32 @@ authRouter.post("/signin", async (req, res) => {
 
         const user = (await User.findOne({ where: { email } }))?.toJSON();
         const hashedPassword = user?.password;
+
         const isPasswordMatched = bcrypt.compareSync(password, hashedPassword);
 
-        const isCorretUser = user && isPasswordMatched;
+        const isCorrectUser = user && isPasswordMatched;
 
-        if (!isCorretUser) {
+        if (!isCorrectUser) {
             return res.status(400).json({
                 ok: false,
-                message: "일치하지 인증 정보가 없습니다.",
+                message: "일치하는 인증 정보가 없습니다.",
             });
         }
 
-        jwt.sign();
-
-        const accessToken = null;
-        const refreshToken = null;
+        const accessToken = jwt.sign({ userId: user.id }, JWT_ACCESS_TOKEN_SECRET, {
+            expiresIn: JWT_ACCESS_TOKEN_EXPIRES_IN,
+        });
+        const refreshToken = jwt.sign({ userId: user.id }, JWT_REFRESH_TOKEN_SECRET, {
+            expiresIn: JWT_REFRESH_TOKEN_EXPIRES_IN,
+        });
 
         return res.status(200).json({
             ok: true,
-            message: "회원가입에 성공하였습니다.",
+            message: "로그인에 성공하였습니다.",
             data: { accessToken, refreshToken },
         });
     } catch (error) {
-        console.error(error);
-        return res.status(500).json({
-            ok: false,
-            message: "예상치 못한 에러가 발생하였습니다. 관리자에게 문의하세요",
-        });
+        next(error);
     }
 });
 
