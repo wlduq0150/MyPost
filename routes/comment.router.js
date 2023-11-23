@@ -13,8 +13,8 @@ const router = express.Router();
 // todo: 인증 집어넣기
 
 // 포스트의 전체 댓글 보기
-router.get("/posts/comments/:postId", async (req, res) => {
-    const { postId } = req.params;
+router.get("/comments", async (req, res) => {
+    const { postId } = req.query;
     const existPost = await Post.findOne({ where: { id: postId } });
     if (!existPost) return res.status(404).json({ ok: false, message: "해당 포스트가 없습니다." });
     const postComments = await Comment.findAll({ where: { postId } });
@@ -22,12 +22,12 @@ router.get("/posts/comments/:postId", async (req, res) => {
 });
 
 // 댓글 생성
-router.post("/posts/newComment/:postId", async (req, res) => {
+router.post("/comments", async (req, res) => {
     const { content } = req.body;
-    const { postId } = req.params;
+    const { postId } = req.query;
     const existPost = await Post.findOne({ where: { id: postId } });
     if (!existPost) return res.status(404).json({ ok: false, message: "해당 포스트가 없습니다." });
-    const userId = 3; // 인증 넣고 수정
+    const userId = 5; // 인증 넣고 수정
     await Comment.create({ userId, postId, content });
     res.status(201).json({ ok: true, message: "댓글이 등록되었습니다." });
 });
