@@ -8,7 +8,7 @@ import CommentLike from "../models/commentLikes.model.js";
 
 const likeRouter = express.Router();
 
-likeRouter.post("/comments/:commentId/like", async (req, res, next) => {
+likeRouter.put("/comments/:commentId/like", async (req, res, next) => {
     const userId = 1;
     const { commentId } = req.params;
 
@@ -100,7 +100,7 @@ likeRouter.post("/comments/:commentId/like", async (req, res, next) => {
     });
 });
 
-likeRouter.post("/posts/:postId/like", async (req, res, next) => {
+likeRouter.put("/posts/:postId/like", async (req, res, next) => {
     const userId = 1;
     const { postId } = req.params;
 
