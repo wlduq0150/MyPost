@@ -27,6 +27,11 @@ export default class User extends Model {
                     type: DataTypes.DATE,
                     allowNull: false,
                 },
+                followers: {
+                    type: DataTypes.INTEGER,
+                    allowNull: false,
+                    defaultValue: 0,
+                },
             },
             {
                 sequelize,
@@ -42,6 +47,8 @@ export default class User extends Model {
     static associate(db) {
         db.User.hasMany(db.Post, { as: "posts", foreignKey: "userId", sourceKey: "id" });
         db.User.hasMany(db.Comment, { as: "comments", foreignKey: "userId", sourceKey: "id" });
+        db.User.hasMany(db.Follow, { foreignKey: "followerId", sourceKey: "id" });
+        db.User.hasMany(db.Follow, { foreignKey: "followeeId", sourceKey: "id" });
         db.User.hasMany(db.CommentLike, {
             as: "commentLikes",
             foreignKey: "userId",
