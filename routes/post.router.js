@@ -6,15 +6,33 @@ import Post from "../models/posts.model.js";
 import Comment from "../models/comments.model.js";
 import PostLike from "../models/postLikes.model.js";
 import CommentLike from "../models/commentLikes.model.js";
+import { uploadThumbnail, uploadImages } from "../middlewares/image-upload.middleware.js";
 
 const postRouter = express.Router();
 
 // 로그인 인증 부분 완료되면 userId 부분 수정 필요, 실패 시 반환 코드 추가 필요.
 
+postRouter.post("/posts/image", uploadImages, async (req, res) => {
+    if (!req.file || !req.file.location) {
+        return res.status(400).json({
+            ok: false,
+            message: "사진 파일이 잘못되었습니다."
+        });
+    }
+
+    return res.status(201).json({
+        ok: true,
+        message: "사진이 성공적으로 업로드 되엇습니다.",
+        data: {
+            image: req.file.location
+        }
+    });
+});
+
 // 게시글 작성 라우터
-postRouter.post("/posts", async(req,res)=>{
+postRouter.post("/posts", uploadThumbnail, async(req,res)=>{
     const userId = 1;
-    const { content, title, thumbnail } = req.body;
+    const { content, title } = req.body;
 
     try {
         if(!content||!title){
@@ -27,14 +45,14 @@ postRouter.post("/posts", async(req,res)=>{
          userId,
          title,
          content,
-         thumbnail,
+         thumbnail: req.file.location,
+         images: []
         })
         
         return res.status(201).json({ok:true, message:"게시글 작성 성공", data: post})
     } catch (error){
         console.log(error);
         return res.status(501).json({message:"서버 오류 발생"})
-    
     }
 });
 
