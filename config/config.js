@@ -2,10 +2,10 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const development = {
-    username: process.env.MYSQL_USERNAME,
-    password: process.env.MYSQL_PASSWORD,
-    database: process.env.MYSQL_DATABASE,
-    host: process.env.MYSQL_HOST,
+    username: "root",
+    password: "wlduq0160",
+    database: "myPost",
+    host: "nest-database.c0mrakurnszp.ap-northeast-2.rds.amazonaws.com",
     dialect: "mysql",
 };
 

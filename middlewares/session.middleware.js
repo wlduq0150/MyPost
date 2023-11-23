@@ -5,7 +5,7 @@ dotenv.config();
 export const sessionMiddleware = session({
 	resave: false,
 	saveUninitialized: false,
-	secret: process.env.COOKIE_SECRET,
+	secret: "znzltlzmfptdmsqlalfdlaksgdmfwlehahfmsek",
 	cookie: {
 		httpOnly: true,
 		secure: false,

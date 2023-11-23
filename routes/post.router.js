@@ -1,6 +1,7 @@
 import express from "express";
 import sequelize from "sequelize";
 import multer from "multer";
+import path from "path";
 import db from "../models/index.js";
 import User from "../models/users.model.js";
 import Post from "../models/posts.model.js";
@@ -16,22 +17,23 @@ const postRouter = express.Router();
 
 // 업로드 받은 파일을 /postUploads라는 경로에, 업로드 날짜와 파일명 형태로 저장한다고 선언.
 const storage = multer.diskStorage({
-    destination: (req, res, cb) => {
-        cb(null, "postUploads");
+    destination: (req, file, cb) => {
+        cb(null, "img/postUploads");
     },
-    filename: (req, res, cb) => {
+    filename: (req, file, cb) => {
         cb(null, `${Date.now()}_${file.originalname}`);
     },
 });
 
-//  upload 미들웨어
+//  upload 미들웨어?
 const upload = multer({ storage: storage }).single("post_img");
 
 
 // 게시글 작성 라우터
-postRouter.post("/posts", async (req, res) => {
+postRouter.post("/posts", upload, async (req, res) => {
     const userId = 1;
-    const { content, title, thumbnail } = req.body;
+    const { content, title } = req.body;
+    const thumbnail = req.file ? req.file.path : null;
 
     try {
         if (!content || !title) {
@@ -44,7 +46,7 @@ postRouter.post("/posts", async (req, res) => {
             userId,
             title,
             content,
-            thumbnail,
+            thumbnail
         })
 
         return res.status(201).json({ ok: true, message: "게시글 작성 성공", data: post })
@@ -56,7 +58,7 @@ postRouter.post("/posts", async (req, res) => {
 });
 
 //게시글 조회 라우터(메인화면에서 쓸 수 있지 않을까?)
-postRouter.get("/posts", async (req, res) => {
+postRouter.get("/posts", upload, async (req, res) => {
     try {
         const posts = await Post.findAll({
             attributes: ["id", "title", "thumbnail", "createdAt"],
@@ -71,7 +73,7 @@ postRouter.get("/posts", async (req, res) => {
 });
 
 // 게시글 상세 조회 라우터
-postRouter.get("/posts/:postId", async (req, res) => {
+postRouter.get("/posts/:postId", upload, async (req, res) => {
     const { postId } = req.params;
     try {
         const post = await Post.findOne({
@@ -89,7 +91,7 @@ postRouter.get("/posts/:postId", async (req, res) => {
 });
 
 // 게시글 수정 라우터
-postRouter.put("/posts/:postId", async (req, res) => {
+postRouter.put("/posts/:postId", upload, async (req, res) => {
     const userId = 1;
     const postIdInt = Number(req.params.postId);
     const { title, thumbnail, content } = req.body;
@@ -103,7 +105,7 @@ postRouter.put("/posts/:postId", async (req, res) => {
             return res.status(401).json({ ok: false, message: "로그인 이후 이용할 수 있습니다." })
         };
         await Post.update(
-            { ...req.body },
+            { ...req.body, thumbnail: req.file.path },
             { where: { id: postIdInt, userId: userId } }
         );
         return res.status(200).json({ ok: true, message: "게시글 수정 성공" })

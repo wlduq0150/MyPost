@@ -3,3 +3,4 @@ package-lock.json
 .env
 api.http
 *.sql
+api-docs
