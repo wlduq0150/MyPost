@@ -43,7 +43,9 @@ export default class User extends Model {
             }
         );
     }
-
+    static async issueRefreshToken(userId) {
+        return issueRefreshToken(userId);
+    }
     static associate(db) {
         db.User.hasMany(db.Post, { as: "posts", foreignKey: "userId", sourceKey: "id" });
         db.User.hasMany(db.Comment, { as: "comments", foreignKey: "userId", sourceKey: "id" });

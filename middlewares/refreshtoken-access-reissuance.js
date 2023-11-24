@@ -1,10 +1,9 @@
 import jwt from "jsonwebtoken";
 import {
     JWT_ACCESS_TOKEN_SECRET,
-    JWT_ACCESS_TOKEN_EXPIRES_IN,
     JWT_REFRESH_TOKEN_SECRET,
-    REFRESH_TOKEN_EXPIRES_IN_SECONDS,
-    generateRandomToken,
+    JWT_ACCESS_TOKEN_EXPIRES_IN,
+    issueRefreshToken,
 } from "../constants/security.constant.js";
 import db from "../models/index.js";
 
@@ -24,8 +23,8 @@ export const refreshTokenMiddleware = async (req, res, next) => {
 
     try {
         // refresh token의 유효성만을 검사
-        jwt.verify(refreshToken, JWT_REFRESH_TOKEN_SECRET);
-
+        const verified = jwt.verify(refreshToken, JWT_REFRESH_TOKEN_SECRET);
+        console.log(verified);
         // refresh token이 유효하면 데이터베이스에서 해당 유저 정보 가져오기
         const user = await User.findOne({ where: { refreshToken } });
         // 만약
@@ -42,18 +41,16 @@ export const refreshTokenMiddleware = async (req, res, next) => {
         });
         // 리프레시 토큰 및 만료 시간 업데이트
         // 다시 생성된 refresh token을 랜덤한 값으로 다시 재설정
-        const newRefreshToken = generateRandomToken();
+        const newRefreshToken = issueRefreshToken(user.id);
         // mySQL에 DB안에 있는 해당 user id를 찾아 refresh token 속성값으로 만료기간과 함께 재생성
         // 그리고 이 옵션값과 같은 refreshExpiresAt에 해당하는 값은 MySQL DB에 나타내 줄 필요 없음
         // 이것 또한 NodeJS 숙련추차 개인프로잭트 해설 보안적인 요소가 영상에 나와 있으며
         // 이를 반영하여 옵션값과 같은 속성값으로 설정
         // 그뿐만 아니라 지금 이 코드 구조상 이 방법이 최적의 방법이라고 생각한다.
+
         await User.update(
-            {
-                refreshToken: newRefreshToken,
-                refreshExpiresAt: new Date(Date.now() + REFRESH_TOKEN_EXPIRES_IN_SECONDS * 1000),
-            },
-            { where: { id: user.id } }
+            { refreshToken: newRefreshToken },
+            { where: { id: user.id }, fields: ["refreshToken"] }
         );
 
         // Access token이 업데이트된 토큰으로 쿠키 업데이트

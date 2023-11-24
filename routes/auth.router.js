@@ -2,14 +2,11 @@ import { Router } from "express";
 import bcrypt from "bcrypt";
 import db from "../models/index.js";
 import jwt from "jsonwebtoken";
-import cookieParser from "cookie-parser";
 
 import {
     PASSWORD_SALT_ROUNDS,
     JWT_ACCESS_TOKEN_SECRET,
     JWT_ACCESS_TOKEN_EXPIRES_IN,
-    JWT_REFRESH_TOKEN_SECRET,
-    JWT_REFRESH_TOKEN_EXPIRES_IN,
 } from "../constants/security.constant.js";
 const { User } = db;
 const authRouter = Router();
@@ -102,7 +99,6 @@ authRouter.post("/signup", async (req, res, next) => {
                 birth,
                 myIntro,
                 password: hashedPassword,
-                refreshToken: await User.issueRefreshToken(newUser.id),
             })
         ).toJSON();
         delete newUser.password;
@@ -164,7 +160,6 @@ authRouter.post("/signin", async (req, res, next) => {
         res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
         });
-        console.log(refreshToken);
         return res.status(200).json({
             ok: true,
             message: "로그인에 성공하였습니다.",
