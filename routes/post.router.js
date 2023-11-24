@@ -33,8 +33,6 @@ postRouter.post("/posts/image", uploadImages, async (req, res) => {
 
 // 게시글 작성 라우터
 
-postRouter.post("/posts", needSignin, async (req, res) => {
-
 postRouter.post("/posts", needSignin, uploadThumbnail, async(req,res)=>{
 
     const userId = 1;
@@ -53,7 +51,7 @@ postRouter.post("/posts", needSignin, uploadThumbnail, async(req,res)=>{
          userId,
          title,
          content,
-         thumbnail: req.file.location,
+         thumbnail: req.file?.location,
          images: []
         })
         

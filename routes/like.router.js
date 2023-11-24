@@ -9,7 +9,7 @@ import CommentLike from "../models/commentLikes.model.js";
 const likeRouter = express.Router();
 
 likeRouter.put("/comments/:commentId/like", async (req, res, next) => {
-    const userId = 1;
+    const userId = 3;
     const { commentId } = req.params;
 
     const t = await db.sequelize.transaction();
