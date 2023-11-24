@@ -1,9 +1,5 @@
 import { Model, DataTypes } from "sequelize";
-import jwt from "jsonwebtoken";
-import {
-    JWT_REFRESH_TOKEN_SECRET,
-    JWT_REFRESH_TOKEN_EXPIRES_IN,
-} from "../constants/security.constant.js";
+import { issueRefreshToken } from "../constants/security.constant.js";
 
 export default class User extends Model {
     static init(sequelize) {
@@ -60,13 +56,6 @@ export default class User extends Model {
     // 추가: refreshToken 발급 메서드
     // 로그인시 사용자 및 데이터 베이스에 refresh Token에 빈 payload를 값을 저장하기 위함
     static async issueRefreshToken(userId) {
-        const refreshToken = jwt.sign({}, JWT_REFRESH_TOKEN_SECRET, {
-            expiresIn: JWT_REFRESH_TOKEN_EXPIRES_IN,
-        });
-
-        // DB에 refreshToken 저장
-        await this.update({ refreshToken }, { where: { id: userId } });
-
-        return refreshToken;
+        return issueRefreshToken(userId);
     }
 }
