@@ -4,7 +4,7 @@ export const PASSWORD_SALT_ROUNDS = Number.parseInt(process.env.PASSWORD_SALT_RO
 export const JWT_ACCESS_TOKEN_SECRET = process.env.JWT_ACCESS_TOKEN_SECRET;
 export const JWT_REFRESH_TOKEN_SECRET = process.env.JWT_REFRESH_TOKEN_SECRET;
 export const JWT_ACCESS_TOKEN_EXPIRES_IN = "1s";
-export const REFRESH_TOKEN_EXPIRES_IN_SECONDS = "604800";
+export const JWT_REFRESH_TOKEN_EXPIRES_IN = "7d";
 
 export function generateRandomToken() {
     // 변수에 원하는 토큰 길이(즉 문자열의 길이) 설정

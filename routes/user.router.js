@@ -1,11 +1,12 @@
 import express from "express";
 import { needSignin } from "../middlewares/accesstoken-need-signin.middleware.js";
+import { refreshTokenMiddleware } from "../middlewares/refreshtoken-access-reissuance.js";
 import User from "../models/users.model.js";
 
 const userRouter = express.Router();
 
 // 본인 프로필 조회
-userRouter.get("/user/me", needSignin, async (req, res, next) => {
+userRouter.get("/user/me", needSignin, refreshTokenMiddleware, async (req, res, next) => {
     const userId = 1;
 
     const user = res.locals.user;
