@@ -51,7 +51,7 @@ postRouter.post("/posts", needSignin, uploadThumbnail, async(req,res)=>{
          userId,
          title,
          content,
-         thumbnail: req.file.location,
+         thumbnail: req.file?.location,
          images: []
         })
         

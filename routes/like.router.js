@@ -11,6 +11,7 @@ const likeRouter = express.Router();
 
 likeRouter.put("/comments/:commentId/like", needSignin, async (req, res, next) => {
     const { id: userId } = res.locals.user;
+
     const { commentId } = req.params;
 
     const t = await db.sequelize.transaction();
