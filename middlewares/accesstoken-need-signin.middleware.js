@@ -14,7 +14,6 @@ export const needSignin = async (req, res, next) => {
     }
 
     const [tokenType, accessToken] = authorizationHeader?.split(" ");
-	console.log(tokenType, accessToken)
 
     // 토큰형식이 일치하지 않는 경우
     if (tokenType !== "Bearer") {
