@@ -5,7 +5,7 @@ POST {{host}}/signup
 Content-Type: application/json
 
 {
-   "email": "1232@example.com",
+   "email": "1233@example.com",
    "name": "test",
    "birth": "2023-11-21",
    "myIntro": "하루를 짧게 인생은 길게",
@@ -18,6 +18,6 @@ POST {{host}}/signin
 Content-Type: application/json
 
 {
-   "email": "1232@example.com",
+   "email": "1233@example.com",
    "password": "qwertyuiop"
 }

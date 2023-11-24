@@ -2,11 +2,13 @@ import { Router } from "express";
 import bcrypt from "bcrypt";
 import db from "../models/index.js";
 import jwt from "jsonwebtoken";
+import cookieParser from "cookie-parser";
+
 import {
     PASSWORD_SALT_ROUNDS,
     JWT_ACCESS_TOKEN_SECRET,
-    JWT_REFRESH_TOKEN_SECRET,
     JWT_ACCESS_TOKEN_EXPIRES_IN,
+    JWT_REFRESH_TOKEN_SECRET,
     JWT_REFRESH_TOKEN_EXPIRES_IN,
 } from "../constants/security.constant.js";
 const { User } = db;
@@ -94,7 +96,14 @@ authRouter.post("/signup", async (req, res, next) => {
         const hashedPassword = bcrypt.hashSync(password, PASSWORD_SALT_ROUNDS);
 
         const newUser = (
-            await User.create({ email, name, birth, myIntro, password: hashedPassword })
+            await User.create({
+                email,
+                name,
+                birth,
+                myIntro,
+                password: hashedPassword,
+                refreshToken: await User.issueRefreshToken(newUser.id),
+            })
         ).toJSON();
         delete newUser.password;
 
@@ -135,7 +144,7 @@ authRouter.post("/signin", async (req, res, next) => {
         const isCorrectUser = user && isPasswordMatched;
 
         if (!isCorrectUser) {
-            return res.status(400).json({
+            return res.status(401).json({
                 ok: false,
                 message: "일치하는 인증 정보가 없습니다.",
             });
@@ -144,10 +153,18 @@ authRouter.post("/signin", async (req, res, next) => {
         const accessToken = jwt.sign({ userId: user.id }, JWT_ACCESS_TOKEN_SECRET, {
             expiresIn: JWT_ACCESS_TOKEN_EXPIRES_IN,
         });
-        const refreshToken = jwt.sign({ userId: user.id }, JWT_REFRESH_TOKEN_SECRET, {
-            expiresIn: JWT_REFRESH_TOKEN_EXPIRES_IN,
+        res.cookie("accessToken", accessToken, {
+            httpOnly: true,
         });
 
+        const refreshToken = await User.issueRefreshToken(user.id);
+        // refreshToken을 데이터베이스에 저장합니다.
+        await User.update({ refreshToken }, { where: { id: user.id } });
+
+        res.cookie("refreshToken", refreshToken, {
+            httpOnly: true,
+        });
+        console.log(refreshToken);
         return res.status(200).json({
             ok: true,
             message: "로그인에 성공하였습니다.",

@@ -2,13 +2,14 @@ import express from "express";
 import db from "../models/index.js";
 import User from "../models/users.model.js";
 import Follow from "../models/follows.model.js";
+import { needSignin } from "../middlewares/accesstoken-need-signin.middleware.js";
 
 const router = express.Router();
 
 // todo: 인증 추가
 // 팔로우
-router.post("/follow/:followeeId", async (req, res, next) => {
-    const userId = 3;
+router.post("/follow/:followeeId", needSignin, async (req, res, next) => {
+    const { id: userId } = res.locals.user;
     const followeeId = +req.params.followeeId;
     if (userId === followeeId)
         return res.status(400).json({ ok: false, message: "자신을 팔로우할 수 없습니다." });
@@ -34,8 +35,8 @@ router.post("/follow/:followeeId", async (req, res, next) => {
 });
 
 // 언팔로우
-router.delete("/follow/:followeeId", async (req, res, next) => {
-    const userId = 3;
+router.delete("/follow/:followeeId", needSignin, async (req, res, next) => {
+    const { id: userId } = res.locals.user;
     const followeeId = +req.params.followeeId;
     const existFollow = await Follow.findOne({ where: { followerId: userId, followeeId } });
     if (!existFollow)

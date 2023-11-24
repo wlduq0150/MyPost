@@ -1,8 +1,7 @@
 @host = http://localhost:3000/api
-@accesToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjExLCJpYXQiOjE3MDA3MDI1MTQsImV4cCI6MTcwMDc0NTcxNH0.lS2OGDw1HwBsKFjsOrXSzJWvVYuJv-nKGsKhuFxrjKE
-
+@accesToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTcwMDc2NjMwNCwiZXhwIjoxNzAwNzY2MzA1fQ.R2FFh6GCLNmJ36Gk3WnXXsmSh1NfJoyQxBLcqBNKfB0
 ### 내 정보 조회
-GET {{host}}/user/profile
+GET {{host}}/user/me
 Authorization: Bearer {{accesToken}}
 
 
