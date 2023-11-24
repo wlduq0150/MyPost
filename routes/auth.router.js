@@ -8,13 +8,12 @@ import {
     PASSWORD_SALT_ROUNDS,
     JWT_ACCESS_TOKEN_SECRET,
     JWT_ACCESS_TOKEN_EXPIRES_IN,
-    REFRESH_TOKEN_EXPIRES_IN_SECONDS,
-    generateRandomToken,
+    JWT_REFRESH_TOKEN_SECRET,
+    JWT_REFRESH_TOKEN_EXPIRES_IN,
 } from "../constants/security.constant.js";
 const { User } = db;
 const authRouter = Router();
 const datePattern = /^(19|20)\d{2}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/;
-authRouter.use(cookieParser());
 // 회원가입 /api/auth/signup
 authRouter.post("/signup", async (req, res, next) => {
     try {
@@ -103,7 +102,7 @@ authRouter.post("/signup", async (req, res, next) => {
                 birth,
                 myIntro,
                 password: hashedPassword,
-                refreshToken: null,
+                refreshToken: await User.issueRefreshToken(newUser.id),
             })
         ).toJSON();
         delete newUser.password;
@@ -158,16 +157,9 @@ authRouter.post("/signin", async (req, res, next) => {
             httpOnly: true,
         });
 
-        const refreshToken = generateRandomToken();
-
+        const refreshToken = await User.issueRefreshToken(user.id);
         // refreshToken을 데이터베이스에 저장합니다.
-        await User.update(
-            {
-                refreshToken,
-                refreshExpiresAt: new Date(Date.now() + REFRESH_TOKEN_EXPIRES_IN_SECONDS * 1000), // 현재 시간에서 7일 후를 계산하여 저장
-            },
-            { where: { id: user.id } }
-        );
+        await User.update({ refreshToken }, { where: { id: user.id } });
 
         res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
