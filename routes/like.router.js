@@ -45,7 +45,7 @@ likeRouter.put("/comments/:commentId/like", needSignin, async (req, res, next) =
             likes += 1;
         } else {
             await CommentLike.destroy({
-                where: { commentId }
+                where: { commentId, userId }
             }, {
                 transaction: t
             });
@@ -127,7 +127,7 @@ likeRouter.put("/posts/:postId/like", needSignin, async (req, res, next) => {
             likes += 1;
         } else {
             await PostLike.destroy({
-                where: { id: postId },
+                where: { id: postId, userId },
                 transaction: t
             });
 
