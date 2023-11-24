@@ -1,12 +1,31 @@
 import express from "express";
 import db from "../models/index.js";
 import User from "../models/users.model.js";
+import Post from "../models/posts.model.js";
 import Follow from "../models/follows.model.js";
 import { needSignin } from "../middlewares/accesstoken-need-signin.middleware.js";
-
 const router = express.Router();
 
-// todo: 인증 추가
+// 팔로우한 목록 보기
+router.get("/user/:userId/followList", async (req, res) => {
+    const { userId } = req.params;
+    const followList = await Follow.findAll({ where: { followerId: userId } });
+    res.status(200).json({ ok: true, message: "팔로우 목록입니다.", followList });
+});
+
+// 내가 팔로우한 사람들의 포스트만 보기
+router.get("/posts/follow/only", needSignin, async (req, res) => {
+    const { id: userId } = res.locals.user;
+    const followPost = await db.sequelize.query(
+        `SELECT t1.* FROM posts t1 JOIN follows t2 ON t2.followerId = ${userId} and t1.userId = t2.followeeId`
+    );
+    res.status(200).json({
+        ok: true,
+        message: "팔로우한 사용자들의 포스트 목록입니다.",
+        followPost,
+    });
+});
+
 // 팔로우
 router.post("/follow/:followeeId", needSignin, async (req, res, next) => {
     const { id: userId } = res.locals.user;

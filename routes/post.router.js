@@ -54,7 +54,7 @@ postRouter.post("/posts/video", uploadVideos, async (req, res) => {
 
 postRouter.post("/posts", needSignin, uploadThumbnail, async(req,res)=>{
 
-    const userId = 1;
+    const userId = 3;
     const { content, title } = req.body;
 
     try {

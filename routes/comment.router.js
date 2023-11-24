@@ -50,7 +50,7 @@ router.delete("/comments/:commentId", needSignin, async (req, res) => {
     if (existComment.userId !== userId)
         return res.status(401).json({ ok: false, message: "삭제 권한이 없습니다." });
     await existComment.destroy();
-    res.status(204).json();
+    res.status(200).json({ ok: true, message: "댓글이 삭제되었습니다." });
 });
 
 export default router;
