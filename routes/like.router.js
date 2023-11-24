@@ -5,26 +5,18 @@ import Post from "../models/posts.model.js";
 import Comment from "../models/comments.model.js";
 import PostLike from "../models/postLikes.model.js";
 import CommentLike from "../models/commentLikes.model.js";
+import { needSignin } from "../middlewares/accesstoken-need-signin.middleware.js";
 
 const likeRouter = express.Router();
 
-likeRouter.put("/comments/:commentId/like", async (req, res, next) => {
-    const userId = 3;
+likeRouter.put("/comments/:commentId/like", needSignin, async (req, res, next) => {
+    const { id: userId } = res.locals.user;
+
     const { commentId } = req.params;
 
     const t = await db.sequelize.transaction();
 
     try {
-        // 유저 존재 확인
-        const user = await User.findOne({ 
-            where: { id: userId },
-            transaction: t,
-        });
-
-        if (!user) {
-            throw new Error("Unauthorized");
-        }
-
         // 댓글 존재 확인
         const comment = await Comment.findOne({
             where: { id: commentId },
@@ -54,7 +46,7 @@ likeRouter.put("/comments/:commentId/like", async (req, res, next) => {
             likes += 1;
         } else {
             await CommentLike.destroy({
-                where: { commentId }
+                where: { commentId, userId }
             }, {
                 transaction: t
             });
@@ -100,23 +92,13 @@ likeRouter.put("/comments/:commentId/like", async (req, res, next) => {
     });
 });
 
-likeRouter.put("/posts/:postId/like", async (req, res, next) => {
-    const userId = 1;
+likeRouter.put("/posts/:postId/like", needSignin, async (req, res, next) => {
+    const { id: userId } = res.locals.user;
     const { postId } = req.params;
 
     const t = await db.sequelize.transaction();
 
     try {
-        // 유저 존재 확인
-        const user = await User.findOne({ 
-            where: { id: userId },
-            transaction: t,
-        });
-
-        if (!user) {
-            throw new Error("Unauthorized");
-        }
-
         // 포스트 존재 확인
         const post = await Post.findOne({
             where: { id: postId },
@@ -139,12 +121,15 @@ likeRouter.put("/posts/:postId/like", async (req, res, next) => {
             await PostLike.create({
                 userId,
                 postId
+            }, {
+                transaction: t
             });
 
             likes += 1;
         } else {
             await PostLike.destroy({
-                where: { id: postId }
+                where: { id: postId, userId },
+                transaction: t
             });
 
             likes -= 1;
@@ -155,7 +140,8 @@ likeRouter.put("/posts/:postId/like", async (req, res, next) => {
         await Post.update({
             likes,
         }, {
-            where: { id: postId }
+            where: { id: postId },
+            transaction: t
         });
 
         // 트랜잭션 커밋

@@ -14,7 +14,7 @@ const postRouter = express.Router();
 
 // 로그인 인증 부분 완료되면 userId 부분 수정 필요, 실패 시 반환 코드 추가 필요.
 
-postRouter.post("/posts/image", uploadImages, async (req, res) => {
+postRouter.post("/posts/image", needSignin, uploadImages, async (req, res) => {
     if (!req.file || !req.file.location) {
         return res.status(400).json({
             ok: false,

@@ -6,16 +6,7 @@ const userRouter = express.Router();
 
 // 본인 프로필 조회
 userRouter.get("/user/me", needSignin, async (req, res, next) => {
-    const userId = 1;
-
     const user = res.locals.user;
-
-    if (!user) {
-        return res.status(404).json({
-            ok: false,
-            message: "존재하지 않는 유저입니다.",
-        });
-    }
 
     return res.status(200).json({
         ok: true,
@@ -49,18 +40,9 @@ userRouter.get("/user/:userId", async (req, res, next) => {
 
 // 본인 프로필 수정
 userRouter.patch("/user/me", needSignin, async (req, res, next) => {
-    const userId = 1;
+    const user = res.locals.user;
 
-    const user = await User.findOne({
-        where: { id: userId },
-    });
-
-    if (!user) {
-        return res.status(404).json({
-            ok: false,
-            message: "존재하지 않는 유저입니다.",
-        });
-    }
+    const editUser = await User.findOne({ where: { id: user.id } });
 
     if ("email" in req.body) {
         const emailUser = await User.findOne({ where: { email: req.body.email } });
@@ -73,7 +55,7 @@ userRouter.patch("/user/me", needSignin, async (req, res, next) => {
         }
     }
 
-    await user.update({
+    await editUser.update({
         ...req.body,
     });
 
