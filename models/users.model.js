@@ -53,9 +53,4 @@ export default class User extends Model {
             sourceKey: "id",
         });
     }
-    // 추가: refreshToken 발급 메서드
-    // 로그인시 사용자 및 데이터 베이스에 refresh Token에 빈 payload를 값을 저장하기 위함
-    static async issueRefreshToken(userId) {
-        return issueRefreshToken(userId);
-    }
 }
