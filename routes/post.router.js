@@ -8,6 +8,7 @@ import PostLike from "../models/postLikes.model.js";
 import CommentLike from "../models/commentLikes.model.js";
 import { needSignin } from "../middlewares/accesstoken-need-signin.middleware.js";
 import { uploadThumbnail, uploadImages } from "../middlewares/image-upload.middleware.js";
+import { uploadVideos } from "../middlewares/video-upload.middleware.js"
 
 
 const postRouter = express.Router();
@@ -31,6 +32,24 @@ postRouter.post("/posts/image", needSignin, uploadImages, async (req, res) => {
     });
 });
 
+// video 업로드 api
+postRouter.post("/posts/video", uploadVideos, async (req, res) => {
+    if (!req.file || !req.file.location) {
+        return res.status(400).json({
+            ok: false,
+            message: "비디오 파일이 잘못되었습니다."
+        })
+    }
+
+    return res.status(201).json({
+        ok: true,
+        message: "영상이 성공적으로 업로드 되었습니다.",
+        data: {
+            video: req.file.location
+        }
+    })
+})
+
 // 게시글 작성 라우터
 
 postRouter.post("/posts", needSignin, uploadThumbnail, async(req,res)=>{
@@ -40,26 +59,22 @@ postRouter.post("/posts", needSignin, uploadThumbnail, async(req,res)=>{
 
     try {
         if (!content || !title) {
-            return res.status(400).json({ ok: false, message: "내용을 모두 채워 주세요." });
-        }
-        if (!userId) {
-            //로그인 부분 완료 후 수정 필요.
-            return res.status(401).json({ ok: false, message: "로그인 이후 이용할 수 있습니다." });
-        }
+            return res.status(400).json({ ok: false, message: "내용을 모두 채워 주세요." })
+        };
+        if (!userId) { //로그인 부분 완료 후 수정 필요.
+            return res.status(401).json({ ok: false, message: "로그인 이후 이용할 수 있습니다." })
+        };
         const post = await Post.create({
-
-         userId,
-         title,
-         content,
-         thumbnail: req.file?.location,
-         images: []
+            userId,
+            title,
+            content,
+            thumbnail: req.file.location
         })
-        
-        return res.status(201).json({ok:true, message:"게시글 작성 성공", data: post})
-    } catch (error){
-        console.log(error);
-        return res.status(501).json({message:"서버 오류 발생"})
 
+        return res.status(201).json({ ok: true, message: "게시글 작성 성공", data: post })
+    } catch (error) {
+        console.log(error);
+        return res.status(501).json({ message: "서버 오류 발생" })
     }
 });
 
@@ -68,7 +83,7 @@ postRouter.get("/posts", async (req, res) => {
     try {
         const posts = await Post.findAll({
             attributes: ["id", "title", "thumbnail", "createdAt"],
-            order: ["createdAt"],
+            order: ["createdAt"]
         });
 
         return res.status(200).json({ ok: true, message: "게시글 조회 성공", data: posts });
