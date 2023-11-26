@@ -82,8 +82,13 @@ postRouter.post("/posts", needSignin, uploadThumbnail, async(req,res)=>{
 postRouter.get("/posts", async (req, res) => {
     try {
         const posts = await Post.findAll({
-            attributes: ["id", "title", "thumbnail", "createdAt"],
-            order: ["createdAt"]
+            attributes: ["id", "title", "thumbnail", "content", "likes", "createdAt"],
+            order: ["createdAt"],
+            include: {
+                model: User,
+                as: "user",
+                attributes: ["name"],
+            },
         });
 
         return res.status(200).json({ ok: true, message: "게시글 조회 성공", data: posts });

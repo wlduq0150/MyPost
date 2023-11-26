@@ -10,7 +10,7 @@ import {
 } from "../constants/security.constant.js";
 const { User } = db;
 const authRouter = Router();
-const datePattern = /^(19|20)\d{2}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/;
+const datePattern = /^(?!0000)[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/;
 // 회원가입 /api/auth/signup
 authRouter.post("/signup", async (req, res, next) => {
     try {

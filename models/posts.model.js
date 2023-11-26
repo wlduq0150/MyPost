@@ -43,6 +43,6 @@ export default class Post extends Model {
 	static associate(db) {
         db.Post.hasMany(db.Comment, { as: "comments", foreignKey: "postId", sourceKey: "id" });
         db.Post.hasMany(db.PostLike, { as: "postLikes", foreignKey: "postId", sourceKey: "id" });
-        db.Post.belongsTo(db.User, { foreignKey: "userId", targetKey: "id" });
+        db.Post.belongsTo(db.User, { as: "user", foreignKey: "userId", targetKey: "id" });
     }
 }
