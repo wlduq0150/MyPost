@@ -1,4 +1,5 @@
 import express from "express";
+import Sequelize from "sequelize";
 import db from "../models/index.js";
 import User from "../models/users.model.js";
 import Post from "../models/posts.model.js";
@@ -17,7 +18,8 @@ router.get("/user/:userId/followList", async (req, res) => {
 router.get("/posts/follow/only", needSignin, async (req, res) => {
     const { id: userId } = res.locals.user;
     const followPost = await db.sequelize.query(
-        `SELECT t1.* FROM posts t1 JOIN follows t2 ON t2.followerId = ${userId} and t1.userId = t2.followeeId`
+        `SELECT t1.* FROM posts t1 JOIN follows t2 ON t2.followerId = ${userId} and t1.userId = t2.followeeId`,
+		{ type: Sequelize.QueryTypes.SELECT }
     );
     res.status(200).json({
         ok: true,
