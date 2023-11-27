@@ -18,7 +18,7 @@ router.get("/user/:userId/followList", async (req, res) => {
 router.get("/posts/follow/only", needSignin, async (req, res) => {
     const { id: userId } = res.locals.user;
     const followPost = await db.sequelize.query(
-        `SELECT t1.* FROM posts t1 JOIN follows t2 ON t2.followerId = ${userId} and t1.userId = t2.followeeId`,
+        `SELECT t1.*, t3.name FROM posts t1 JOIN follows t2 ON t2.followerId = ${userId} and t1.userId = t2.followeeId JOIN users t3 ON t2.followeeId=t3.id`,
 		{ type: Sequelize.QueryTypes.SELECT }
     );
     res.status(200).json({
