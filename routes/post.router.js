@@ -52,7 +52,7 @@ postRouter.post("/posts/video", uploadVideos, async (req, res) => {
 
 // 게시글 작성 라우터
 
-postRouter.post("/posts", needSignin, uploadThumbnail, async(req,res)=>{
+postRouter.post("/posts", needSignin, uploadThumbnail, async (req, res) => {
 
     const userId = 3;
     const { content, title } = req.body;
@@ -103,7 +103,7 @@ postRouter.get("/posts/:postId", async (req, res) => {
     const { postId } = req.params;
     try {
         const post = await Post.findOne({
-            attributes: ["id", "title", "thumbnail", "content", "createdAt", "updatedAt"],
+            attributes: ["id", "title", "thumbnail", "content", "createdAt", "updatedAt", "likes"],
             where: { id: postId },
         });
         if (!post) {

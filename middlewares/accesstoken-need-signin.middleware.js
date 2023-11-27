@@ -4,40 +4,21 @@ import { refreshTokenMiddleware } from "./refreshtoken-access-reissuance.js";
 import db from "../models/index.js";
 const { User } = db;
 export const needSignin = async (req, res, next) => {
-    const authorizationHeader = req.headers.authorization;
-
+    const accessTokenFromCookie = req.cookies.accessToken || req.headers.accesstoken;
+    console.log(accessTokenFromCookie);
     // 인증 정보가 아예 없는 경우
-    if (!authorizationHeader) {
+    if (!accessTokenFromCookie) {
         return res.status(401).json({
             ok: false,
             message: "인증정보가 없습니다.",
         });
     }
-
-    const [tokenType, accessToken] = authorizationHeader?.split(" ");
-
-    // 토큰형식이 일치하지 않는 경우
-    if (tokenType !== "Bearer") {
-        return res.status(401).json({
-            ok: false,
-            message: "지원하지 않는 인증방식입니다.",
-        });
-    }
-
-    if (!accessToken) {
-        return res.status(400).json({
-            ok: false,
-            message: "AccessToken이 없습니다.",
-        });
-    }
-
     try {
-        const accessTokenFromCookie = req.cookies.accessToken;
         const decodedPayload = jwt.verify(accessTokenFromCookie, JWT_ACCESS_TOKEN_SECRET);
         const { userId } = decodedPayload;
 
-        // 일치 하는 userId가 없는 경우
         const user = (await User.findByPk(userId)).toJSON();
+        // 일치 하는 userId가 없는 경우
 
         if (!user) {
             return res.status(400).json({

@@ -16,6 +16,14 @@ import postRouter from "./routes/post.router.js";
 import userRouter from "./routes/user.router.js";
 import followRouter from "./routes/follow.router.js";
 
+// import fs from "fs";
+// import https from "https";
+
+// const options = {
+//     key: fs.readFileSync("./cert.key"),
+//     cert: fs.readFileSync("./cert.crt"),
+// };
+
 // 환경변수 세팅
 dotenv.config();
 
@@ -80,3 +88,7 @@ app.use(errorMiddleware);
 const server = app.listen(app.get("port"), () => {
     console.log(app.get("port") + "번 포트에서 서버 실행");
 });
+
+// https.createServer(options, app).listen(8080, () => {
+//     console.log(`HTTPS server started on port 8080`);
+// });

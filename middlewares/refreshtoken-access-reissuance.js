@@ -22,18 +22,18 @@ export const refreshTokenMiddleware = async (req, res, next) => {
     }
 
     try {
-        // refresh token의 유효성만을 검사
-        const verified = jwt.verify(refreshToken, JWT_REFRESH_TOKEN_SECRET);
-        console.log(verified);
+        const refreshTokenVerified = jwt.verify(refreshToken, JWT_REFRESH_TOKEN_SECRET);
         // refresh token이 유효하면 데이터베이스에서 해당 유저 정보 가져오기
-        const user = await User.findOne({ where: { refreshToken } });
-        // 만약
+
+        const user = await User.findOne({ where: { refreshTokenVerified } });
+        console.log(user);
         if (!user) {
             return res.status(401).json({
                 ok: false,
                 message: "유효하지 않은 보안 인증입니다.",
             });
         }
+        // 만약
 
         // 새로운 액세스 토큰 생성
         const newAccessToken = jwt.sign({ userId: user.id }, JWT_ACCESS_TOKEN_SECRET, {
