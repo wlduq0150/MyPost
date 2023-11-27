@@ -103,7 +103,7 @@ postRouter.get("/posts/:postId", async (req, res) => {
     const { postId } = req.params;
     try {
         const post = await Post.findOne({
-            attributes: ["id", "title", "thumbnail", "content", "createdAt", "updatedAt", "likes", 'userId'],
+            attributes: ["id", "title", "thumbnail", "content", "createdAt", "updatedAt", "likes"],
             where: { id: postId },
         });
         if (!post) {
