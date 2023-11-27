@@ -16,6 +16,7 @@ likeRouter.put("/comments/:commentId/like", needSignin, async (req, res, next) =
 
     const t = await db.sequelize.transaction();
 
+    let likes;
     try {
         // 댓글 존재 확인
         const comment = await Comment.findOne({
@@ -27,7 +28,7 @@ likeRouter.put("/comments/:commentId/like", needSignin, async (req, res, next) =
             throw new Error("Not Found");
         }
 
-        let { likes } = comment;
+        likes = comment.likes;
 
         // 댓글 좋아요 여부 확인 및 업데이트
         const commentLike = await CommentLike.findOne({
