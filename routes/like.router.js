@@ -46,7 +46,7 @@ likeRouter.put("/comments/:commentId/like", needSignin, async (req, res, next) =
             likes += 1;
         } else {
             await CommentLike.destroy({
-                where: { id: commentId, userId }
+                where: { commentId, userId }
             }, {
                 transaction: t
             });
@@ -116,7 +116,7 @@ likeRouter.put("/posts/:postId/like", needSignin, async (req, res, next) => {
 
         // 댓글 좋아요 여부 확인 및 업데이트
         const postLike = await PostLike.findOne({
-            where: { userId, id: postId },
+            where: { userId, postId },
             transaction: t,
         });
 
@@ -131,7 +131,7 @@ likeRouter.put("/posts/:postId/like", needSignin, async (req, res, next) => {
             likes += 1;
         } else {
             await PostLike.destroy({
-                where: { id: postId, userId },
+                where: { postId, userId },
                 transaction: t
             });
 
@@ -149,6 +149,14 @@ likeRouter.put("/posts/:postId/like", needSignin, async (req, res, next) => {
 
         // 트랜잭션 커밋
         await t.commit();
+		
+		return res.status(200).json({
+			ok: true,
+			message: "포스트 좋아요 수정 완료",
+			data: {
+				likes,
+			}
+		});
 
     } catch (e) {
         console.log(e);
@@ -170,14 +178,7 @@ likeRouter.put("/posts/:postId/like", needSignin, async (req, res, next) => {
             return;
         }
     }
-
-    return res.status(200).json({
-        ok: true,
-        message: "포스트 좋아요 수정 완료",
-        data: {
-            likes,
-        }
-    });
+    
 });
 
 export default likeRouter;
