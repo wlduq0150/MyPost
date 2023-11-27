@@ -67,8 +67,7 @@ app.use(
 app.use(morgan("dev"));
 
 // 정적 파일들을 public이라는 폴더로 접근할수 있게 해주는 미들웨어
-//app.use(express.static(path.join(__dirname, "public")));
-app.use(express.static("C:/Users/triple/Desktop/Sparta/MyPostFront"))
+app.use(express.static(path.join(__dirname, "public")));
 
 // 요청을 처리할 수 있게 변환해주는 미들웨어
 app.use(express.urlencoded({ extended: false }));
