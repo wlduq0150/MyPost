@@ -32,6 +32,6 @@ export default class Follow extends Model {
 
     static associate(db) {
         db.Post.belongsTo(db.User, { foreignKey: "followerId", targetKey: "id" });
-        db.Post.belongsTo(db.User, { foreignKey: "followeeId", targetKey: "id" });
+        db.Post.belongsTo(db.User, { as: "followees", foreignKey: "followeeId", targetKey: "id" });
     }
 }

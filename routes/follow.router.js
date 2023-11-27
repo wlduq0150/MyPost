@@ -10,7 +10,7 @@ const router = express.Router();
 // 팔로우한 목록 보기
 router.get("/user/:userId/followList", async (req, res) => {
     const { userId } = req.params;
-    const followList = await Follow.findAll({ where: { followerId: userId } });
+    const followList = await Follow.findAll({ where: { followerId: userId }});
     res.status(200).json({ ok: true, message: "팔로우 목록입니다.", followList });
 });
 

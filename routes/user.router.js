@@ -21,7 +21,7 @@ userRouter.get("/user/:userId", async (req, res, next) => {
 
     const user = await User.findOne({
         where: { id: userId },
-        attributes: { exclude: ["password", "birth"] },
+        attributes: { exclude: ["password"] }
     });
 
     if (!user) {

@@ -54,7 +54,7 @@ postRouter.post("/posts/video", uploadVideos, async (req, res) => {
 
 postRouter.post("/posts", needSignin, uploadThumbnail, async (req, res) => {
 
-    const userId = 3;
+    const userId = res.locals.user.id;
     const { content, title } = req.body;
 
     try {
@@ -68,7 +68,7 @@ postRouter.post("/posts", needSignin, uploadThumbnail, async (req, res) => {
             userId,
             title,
             content,
-            thumbnail: req.file.location
+            thumbnail: req.file?.location
         })
 
         return res.status(201).json({ ok: true, message: "게시글 작성 성공", data: post })
