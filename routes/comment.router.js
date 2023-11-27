@@ -10,11 +10,16 @@ const router = express.Router();
 
 // 포스트의 전체 댓글 보기
 router.get("/comments", async (req, res) => {
-    const { postId } = req.query;
-    const existPost = await Post.findOne({ where: { id: postId } });
-    if (!existPost) return res.status(404).json({ ok: false, message: "해당 포스트가 없습니다." });
-    const postComments = await Comment.findAll({ where: { postId } });
-    res.status(200).json({ postComments });
+    try {
+        const { postId } = req.query;
+        console.log(postId);
+        const existPost = await Post.findOne({ where: { id: postId } });
+        if (!existPost) return res.status(404).json({ ok: false, message: "해당 포스트가 없습니다." });
+        const postComments = await Comment.findAll({ where: { postId } });
+        res.status(200).json({ postComments });
+    } catch (e) {
+        next(e);
+    }
 });
 
 // 댓글 생성
